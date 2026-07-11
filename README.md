@@ -80,31 +80,3 @@ Firewall,192.168.1.254
 NAS,192.168.1.10
 Switch,192.168.1.20
 ```
-
-## Biztonsag es GitHub
-
-Ezeknek a fajloknak helyben kell maradniuk, es a `.gitignore` automatikusan kizárja oket a Git feltoltesbol:
-
-- `config.ps1` - Telegram token es Chat ID
-- `devices.csv` - sajat IP-cimek es belso halozati nevek
-- `halozat_hiba.log` es mas `.log` fajlok
-
-Feltoltes elott mindig ellenorizd:
-
-```powershell
-git status
-```
-
-Ha egy token veletlenul megjelenik kepen, commitban vagy nyilvanos helyen, a BotFatherben azonnal csereld le.
-
-## Feltoltes GitHubra
-
-```powershell
-git init
-git branch -M main
-git add .
-git status
-git commit -m "Initial release"
-git remote add origin https://github.com/FELHASZNALONEV/PingMonitor.git
-git push -u origin main
-```
