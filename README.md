@@ -1,82 +1,76 @@
-# PingMonitor V3
+# PingMonitor V4
 
-PowerShell-alapu halozatfigyelo belso halozati eszkozokhoz. Minden IP-cimet parhuzamosan pingel, a kieseseket Telegramon jelzi, es az egy idoben torteno kieseseket egyetlen ertesitesbe csoportositja.
+## GUI valtozat
 
-## Funkciok
+A `PingMonitorGUI.ps1` a kattintgatos, Windows-os feluletu valtozat. Ebben egyetlen ablakbol valaszthatsz CSV-t, kezelheted az eszkozoket, a karbantartasi idoszakokat es a Telegram celokat, valamint eloben latod az eszkozok allapotat es pingjet. Az eszkozlista az ablak meretevel egyutt novekszik vagy csokken; a vezerlogombok es az esemenynaplo mindig alatta maradnak.
 
-- Eszkozlista CSV fajlbol (`Name,IP`)
-- Kulon, parhuzamos natív `ping.exe` folyamat minden eszkozhoz
-- A futtato PC neve minden Telegram-ertesitesben
-- Csoportositott kiesesi es helyreallasi uzenetek
-- Valaszido kijelzese a konzolon
-- Opcionális riasztas magas kesleltetes eseten
-- Windows PowerShell 5.1 es PowerShell 7 tamogatas
+A korabbi `PingMonitorV3.ps1` konzolos valtozat megmarad tartaleknak.
 
-## Elso inditas
+PowerShell-alapu halozatfigyelo. Az eszkozoket parhuzamosan meri, a kieseseket Telegramon jelzi, es egyetlen konzolablakban mutatja az aktualis allapotot.
 
-1. Toltsd le vagy klonozd a repot egy helyi mappaba.
-2. Inditsd el a `PingMonitorV3.ps1` fajlt. Elso inditaskor letrejon mellette a helyi `config.ps1` fajl a mintabol.
-3. A kovetkezo fejezet szerint allitsd be a Telegram botot a `config.ps1` fajlban.
-4. Masold le a `devices-example.csv` fajlt `devices.csv` neven egy biztonsagos helyre, majd ird bele a sajat eszkozeidet.
-5. Inditsd ujra a scriptet, es a fajlvalaszto ablakban jelold ki a sajat `devices.csv` fajlt.
+## Fobb funkciok
 
-PowerShellbol pelda inditas:
+- 1 masodperces parhuzamos ping meres, 1000 ms idotullepessel
+- Eszkoz hozzaadasa es torlese konzolos menubol
+- Az utoljara hasznalt CSV eszkozlista megjegyzese az aktualis gepen
+- Eszkozokent ki- es bekapcsolhato, idozitett karbantartasi idoszak
+- Karbantartas alatt nincs kiesesi riasztas, es az ido nem szamit a statisztikaba
+- Egyideju kiesesek es helyreallasok csoportositott Telegram-ertesitese
+- Napi Telegram osszesito minden nap 21:00-kor: elerhetoseg, atlag- es maximum ping
+- Napi naplofajlok, 30 napos automatikus megorzessel
+
+## Inditas
 
 ```powershell
-Set-ExecutionPolicy -Scope Process Bypass
 .\PingMonitorV3.ps1
 ```
 
-## Telegram bot beallitasa
+Elso inditaskor letrejon a `config.ps1`. Ird bele a Telegram bot tokenedet es Chat ID-dat, majd inditsd ujra a programot.
 
-### 1. Bot token letrehozasa
+Ha a `config.ps1` meg nem tartalmaz Telegram celt, a script inditaskor rakerdez, szeretnel-e Telegram ertesiteseket. Az `i` valasszal egy vagy tobb token/Chat ID par felveheto. Az `n` valasszal Telegram nelkul fut, es csak helyi naplot keszit.
 
-1. Telegramban nyisd meg az [@BotFather](https://t.me/BotFather) beszelgetest.
-2. Kuldd el: `/newbot`.
-3. Add meg a bot megjeleno nevet, majd a felhasznalonevet. A felhasznalonevnek `bot` vegzodesunek kell lennie.
-4. A BotFather kiir egy **HTTP API tokent**. Ez a bot token; masnak ne add meg.
-5. Nyisd meg az uj botoddal a beszelgetest, es kuldd el neki: `/start`.
+## PowerShell futtatasi engedely
 
-Botot a BotFatherrel lehet letrehozni, a kapott tokennel pedig a Telegram Bot API hasznalhato. [Telegram bot dokumentacio](https://core.telegram.org/bots), [Bot API referencia](https://core.telegram.org/bots/api).
-
-### 2. Chat ID lekerese
-
-PowerShellben futtasd az alabbi parancsot. A `SAJAT_BOT_TOKEN` helyere a BotFather altal adott token kerul:
+Ha a PowerShell azt irja, hogy a scriptek futtatasa tiltott, egyszer futtasd a sajat felhasznalod alatt:
 
 ```powershell
-$token = 'SAJAT_BOT_TOKEN'
-$updates = Invoke-RestMethod "https://api.telegram.org/bot$token/getUpdates"
-$updates.result | ConvertTo-Json -Depth 10
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 ```
 
-A kimenetben keresd meg ezt a reszt:
-
-```text
-"chat": { "id": 123456789, ... }
-```
-
-Az `id` erteke a `ChatID`. Csoportnal ez gyakran negativ szam. Ha ures a `result`, ellenorizd, hogy elobb elkuldted-e a `/start` uzenetet a botnak. A `getUpdates` hivatalos Telegram Bot API metodus. [Referencia](https://core.telegram.org/bots/api#getupdates)
-
-### 3. config.ps1 kitoltese
-
-Nyisd meg a **helyi** `config.ps1` fajlt, es ird be a tokenedet es a Chat ID-t:
+Ezutan a script mappajaban add ki:
 
 ```powershell
-$TelegramTargets = @(
-    @{ Token = "SAJAT_BOT_TOKEN"; ChatID = "SAJAT_CHAT_ID" }
-)
+Unblock-File .\PingMonitorV3.ps1
+.\PingMonitorV3.ps1
 ```
 
-Tobb Telegram cel is megadhato a tombben. A `config-example.ps1` csak minta, azt ne ird at a sajat adataiddal.
+Ezt a beallitast nem kell minden inditaskor megismetelned.
 
-## Eszkozlista
+## Automatikus inditas Windows bejelentkezeskor
 
-Pelda `devices.csv`:
+Ha folyamatosan szeretned futtatni, a Windows Feladatutemezoben hozz letre egy uj feladatot `PingMonitor` nevvel:
+
+- Indito: **Bejelentkezeskor**
+- Program: `powershell.exe`
+- Argumentumok: `-NoProfile -ExecutionPolicy Bypass -File "C:\TELJES\UT\PingMonitorV3.ps1"`
+- Kezdes helye: a script mappaja
+
+Igy a monitor automatikusan elindul, amikor bejelentkezel a Windowsba.
+
+## Konzolos menu
+
+Inditaskor a menu fejleceben mindig lathato az aktiv CSV teljes utvonala. CSV nelkul csak a CSV-kivalasztas jelenik meg; aktiv CSV utan indithato a figyeles es nyilik meg az eszkozlista szerkesztese.
+
+A `3. Eszkozlista szerkesztese` menupont egy kulon szerkeszto menut nyit. Itt eloszor a felvett eszkozok listaja lathato, utana a hozzaadas, torles es karbantartasi beallitasok. A lista felirata jelzi: `Esc = vissza a fo menuhez`; az Esc vagy az OK bezarja a listat. A karbantartas be-/kikapcsolasa egyetlen menupont: bekapcsolaskor napi kezdo es vegidot ker, kikapcsolaskor nem ker idot. Az eszkozvalasztasi es idopont ablakokban az Esc vagy a Megse visszalep az elozo menube. A modositasok eloszor csak ideiglenesek. Az `M` pont menti a CSV-t es visszalep a fo menuhoz; a `V` pont visszalep a fo menuhoz.
+
+A `8. Uj Telegram API token es Chat ID par hozzaadasa` menuponttal kesobb is barmikor felvehetsz egy vagy tobb uj Telegram celt. A parok a helyi `config.ps1` fajlba mentodnek.
+
+A karbantartasi beallitas eszkozonkent adhato meg. Pelda: az `Isombar` eszkozhz 22:00 kezdetet es 07:00 veget beallitva a script ejfelkor atnyulo idoszakot is helyesen kezeli.
+
+## CSV formatum
 
 ```csv
-Name,IP
-Router,192.168.1.1
-Firewall,192.168.1.254
-NAS,192.168.1.10
-Switch,192.168.1.20
+Name,IP,MaintenanceEnabled,MaintenanceStart,MaintenanceEnd
+Router,192.168.1.1,False,,
+Isombar,192.168.1.202,True,22:00,07:00
 ```

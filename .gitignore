@@ -5,6 +5,8 @@ devices.csv
 # Futasi naplok
 halozat_hiba.log
 *.log
+logs/
+pingmonitor-settings.json
 
 # Szerkesztoi beallitasok
 *.ps1.user

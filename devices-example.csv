@@ -1,6 +1,5 @@
-Name,IP
-Router,192.168.1.1
-Firewall,192.168.1.254
-NAS,192.168.1.10
-Switch,192.168.1.20
-AccessPoint,192.168.1.30
+Name,IP,MaintenanceEnabled,MaintenanceStart,MaintenanceEnd
+Router,192.168.1.1,False,,
+Firewall,192.168.1.254,False,,
+NAS,192.168.1.10,False,,
+Isombar,192.168.1.202,True,22:00,07:00
