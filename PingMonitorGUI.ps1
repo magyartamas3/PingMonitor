@@ -131,7 +131,7 @@ function Show-DeviceDialog($Device) {
         if(-not $edit -and @($script:Devices | Where-Object IP -eq $ip.Text.Trim()).Count){[Windows.Forms.MessageBox]::Show('Ez az IP-cim mar letezik.','Hiba')|Out-Null; $f.Dispose(); return}
         if($edit){$Device.Name=$name.Text.Trim();$Device.IP=$ip.Text.Trim();$Device.MaintenanceEnabled=$enabled.Checked;$Device.MaintenanceStart=$start.Value.ToString('HH:mm');$Device.MaintenanceEnd=$end.Value.ToString('HH:mm')}
         else{[void]$script:Devices.Add([pscustomobject]@{Name=$name.Text.Trim();IP=$ip.Text.Trim();MaintenanceEnabled=$enabled.Checked;MaintenanceStart=$start.Value.ToString('HH:mm');MaintenanceEnd=$end.Value.ToString('HH:mm')})}
-        Reset-MonitorData;Update-Grid
+        Reset-MonitorData;Update-Grid;Save-Devices
     };$f.Dispose()
 }
 function Show-TelegramDialog {
@@ -192,7 +192,7 @@ $btnSave.Add_Click({Save-Devices})
 $btnTelegram.Add_Click({Show-TelegramDialog})
 $btnAdd.Add_Click({Show-DeviceDialog $null})
 $btnEdit.Add_Click({$d=Get-SelectedDevice;if($d){Show-DeviceDialog $d}})
-$btnDelete.Add_Click({$d=Get-SelectedDevice;if($d -and [Windows.Forms.MessageBox]::Show("Toroljem: $($d.Name)?",'Torles',[Windows.Forms.MessageBoxButtons]::YesNo) -eq 'Yes'){[void]$script:Devices.Remove($d);Reset-MonitorData;Update-Grid}})
+$btnDelete.Add_Click({$d=Get-SelectedDevice;if($d -and [Windows.Forms.MessageBox]::Show("Toroljem: $($d.Name)?",'Torles',[Windows.Forms.MessageBoxButtons]::YesNo) -eq 'Yes'){[void]$script:Devices.Remove($d);Reset-MonitorData;Update-Grid;Save-Devices}})
 $btnStart.Add_Click({$script:Monitoring=$true;$btnStart.Enabled=$false;$btnStop.Enabled=$true;Add-Log 'Figyeles elindult.';Send-Telegram "[INDITAS] PingMonitor elindult`nMonitor: $MonitorName"})
 $btnStop.Add_Click({$script:Monitoring=$false;$btnStart.Enabled=$true;$btnStop.Enabled=$false;Add-Log 'Figyeles leallitva.'})
 $form.Controls.AddRange(@($txtCsv,$btnCsv,$btnSave,$btnTelegram,$grid,$btnAdd,$btnEdit,$btnDelete,$btnStart,$btnStop,$txtEvents))
