@@ -1,0 +1,6 @@
+Name,IP
+Router,192.168.1.1
+Firewall,192.168.1.254
+NAS,192.168.1.10
+Switch,192.168.1.20
+AccessPoint,192.168.1.30

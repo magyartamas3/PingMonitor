@@ -1,0 +1,11 @@
+# Helyi, bizalmas beallitasok
+config.ps1
+devices.csv
+
+# Futasi naplok
+halozat_hiba.log
+*.log
+
+# Szerkesztoi beallitasok
+*.ps1.user
+.vscode/
