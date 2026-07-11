@@ -1,6 +1,7 @@
 ﻿# PingMonitor GUI - Windows PowerShell 5.1 / PowerShell 7 (Windows)
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
+Add-Type -AssemblyName System.Drawing
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 $ScriptRoot = $PSScriptRoot
@@ -41,7 +42,7 @@ function Save-TelegramTargets {
     $lines += ')'; Set-Content $ConfigFile -Value $lines -Encoding UTF8
 }
 function Read-GuiInput([string]$Prompt,[string]$Title) {
-    $f=New-Object Windows.Forms.Form;$f.Text=$Title;$f.Size=New-Object Drawing.Size(450,160);$f.StartPosition='CenterParent';$f.TopMost=$true
+    $f=New-Object Windows.Forms.Form;$f.Text=$Title;$f.Size=[System.Drawing.Size]::new(450,160);$f.StartPosition='CenterParent';$f.TopMost=$true
     $l=New-Object Windows.Forms.Label;$l.Text=$Prompt;$l.AutoSize=$true;$l.Location='15,15'
     $t=New-Object Windows.Forms.TextBox;$t.Location='15,45';$t.Size='400,24'
     $ok=New-Object Windows.Forms.Button;$ok.Text='OK';$ok.Location='240,85';$ok.DialogResult='OK'
@@ -113,7 +114,7 @@ function Get-SelectedDevice {
 }
 function Show-DeviceDialog($Device) {
     $edit = $null -ne $Device
-    $f=New-Object Windows.Forms.Form; $f.Text=if($edit){'Eszköz szerkesztése'}else{'Új eszköz'}; $f.Size=New-Object Drawing.Size(440,300); $f.StartPosition='CenterParent'; $f.TopMost=$true
+    $f=New-Object Windows.Forms.Form; $f.Text=if($edit){'Eszköz szerkesztése'}else{'Új eszköz'}; $f.Size=[System.Drawing.Size]::new(440,300); $f.StartPosition='CenterParent'; $f.TopMost=$true
     $name=New-Object Windows.Forms.TextBox; $name.Location='130,20'; $name.Size='250,24'; $name.Text=if($edit){$Device.Name}else{''}
     $ip=New-Object Windows.Forms.TextBox; $ip.Location='130,55'; $ip.Size='250,24'; $ip.Text=if($edit){$Device.IP}else{''}
     $enabled=New-Object Windows.Forms.CheckBox; $enabled.Text='Napi karbantartás'; $enabled.AutoSize=$true; $enabled.Location='20,95'; $enabled.Checked=if($edit){$Device.MaintenanceEnabled}else{$false}
@@ -173,7 +174,7 @@ function Monitor-Tick {
 }
 
 # GUI
-$form=New-Object Windows.Forms.Form;$form.Text="PingMonitor GUI - $MonitorName";$form.Size=New-Object Drawing.Size(1100,720);$form.StartPosition='CenterScreen';$form.MinimumSize=New-Object Drawing.Size(950,600)
+$form=New-Object Windows.Forms.Form;$form.Text="PingMonitor GUI - $MonitorName";$form.Size=[System.Drawing.Size]::new(1100,720);$form.StartPosition='CenterScreen';$form.MinimumSize=[System.Drawing.Size]::new(950,600)
 $txtCsv=New-Object Windows.Forms.TextBox;$txtCsv.Location='15,15';$txtCsv.Size='650,24';$txtCsv.ReadOnly=$true
 $btnCsv=New-Object Windows.Forms.Button;$btnCsv.Text='CSV kiválasztása';$btnCsv.Size='140,28'
 $btnSave=New-Object Windows.Forms.Button;$btnSave.Text='Eszközlista mentése';$btnSave.Size='160,28'
@@ -199,14 +200,14 @@ $btnStop.Add_Click({$script:Monitoring=$false;$btnStart.Enabled=$true;$btnStop.E
 $form.Controls.AddRange(@($txtCsv,$btnCsv,$btnSave,$btnTelegram,$grid,$btnAdd,$btnEdit,$btnMaintenance,$btnDelete,$btnStart,$btnStop,$txtEvents))
 function Update-Layout {
     $width=$form.ClientSize.Width; $height=$form.ClientSize.Height
-    $btnTelegram.Location=New-Object Drawing.Point($width-135,13)
-    $btnSave.Location=New-Object Drawing.Point($width-300,13)
-    $btnCsv.Location=New-Object Drawing.Point($width-450,13)
-    $txtCsv.Location=New-Object Drawing.Point(15,15); $txtCsv.Size=New-Object Drawing.Size([Math]::Max(200,$width-480),24)
-    $grid.Location=New-Object Drawing.Point(15,55); $grid.Size=New-Object Drawing.Size($width-30,[Math]::Max(150,$height-280))
+    $btnTelegram.Location=[System.Drawing.Point]::new(($width - 135),13)
+    $btnSave.Location=[System.Drawing.Point]::new(($width - 300),13)
+    $btnCsv.Location=[System.Drawing.Point]::new(($width - 450),13)
+    $txtCsv.Location=[System.Drawing.Point]::new(15,15); $txtCsv.Size=[System.Drawing.Size]::new([Math]::Max(200,($width - 480)),24)
+    $grid.Location=[System.Drawing.Point]::new(15,55); $grid.Size=[System.Drawing.Size]::new(($width - 30),[Math]::Max(150,($height - 280)))
     $y=$grid.Bottom+8; $x=15
-    foreach($button in @($btnAdd,$btnEdit,$btnMaintenance,$btnDelete,$btnStart,$btnStop)) { $button.Location=New-Object Drawing.Point($x,$y); $x+=$button.Width+10 }
-    $txtEvents.Location=New-Object Drawing.Point(15,$y+40); $txtEvents.Size=New-Object Drawing.Size($width-30,[Math]::Max(100,$height-$txtEvents.Top-15))
+    foreach($button in @($btnAdd,$btnEdit,$btnMaintenance,$btnDelete,$btnStart,$btnStop)) { $button.Location=[System.Drawing.Point]::new($x,$y); $x+=$button.Width+10 }
+    $txtEvents.Location=[System.Drawing.Point]::new(15,($y + 40)); $txtEvents.Size=[System.Drawing.Size]::new(($width - 30),[Math]::Max(100,($height - $txtEvents.Top - 15)))
 }
 $form.Add_Shown({ Update-Layout })
 $form.Add_ClientSizeChanged({ Update-Layout })
