@@ -183,7 +183,6 @@ $grid=New-Object Windows.Forms.DataGridView;$grid.AllowUserToAddRows=$false;$gri
 foreach($header in @('Nev','IP','Allapot','Ping','Karbantartas')){[void]$grid.Columns.Add($header,$header)}
 $btnAdd=New-Object Windows.Forms.Button;$btnAdd.Text='Hozzáadás';$btnAdd.Size='90,30'
 $btnEdit=New-Object Windows.Forms.Button;$btnEdit.Text='Szerkesztés';$btnEdit.Size='100,30'
-$btnMaintenance=New-Object Windows.Forms.Button;$btnMaintenance.Text='Karbantartás';$btnMaintenance.Size='125,30'
 $btnDelete=New-Object Windows.Forms.Button;$btnDelete.Text='Törlés';$btnDelete.Size='85,30'
 $btnStart=New-Object Windows.Forms.Button;$btnStart.Text='Figyelés indítása';$btnStart.Size='140,30';$btnStart.Enabled=$false
 $btnStop=New-Object Windows.Forms.Button;$btnStop.Text='Leállítás';$btnStop.Size='85,30';$btnStop.Enabled=$false
@@ -193,11 +192,10 @@ $btnSave.Add_Click({Save-Devices})
 $btnTelegram.Add_Click({Show-TelegramDialog})
 $btnAdd.Add_Click({Show-DeviceDialog $null})
 $btnEdit.Add_Click({$d=Get-SelectedDevice;if($d){Show-DeviceDialog $d}})
-$btnMaintenance.Add_Click({$d=Get-SelectedDevice;if($d){Show-DeviceDialog $d}})
 $btnDelete.Add_Click({$d=Get-SelectedDevice;if($d -and [Windows.Forms.MessageBox]::Show("Toroljem: $($d.Name)?",'Torles',[Windows.Forms.MessageBoxButtons]::YesNo) -eq 'Yes'){[void]$script:Devices.Remove($d);Reset-MonitorData;Update-Grid}})
 $btnStart.Add_Click({$script:Monitoring=$true;$btnStart.Enabled=$false;$btnStop.Enabled=$true;Add-Log 'Figyeles elindult.';Send-Telegram "[INDITAS] PingMonitor elindult`nMonitor: $MonitorName"})
 $btnStop.Add_Click({$script:Monitoring=$false;$btnStart.Enabled=$true;$btnStop.Enabled=$false;Add-Log 'Figyeles leallitva.'})
-$form.Controls.AddRange(@($txtCsv,$btnCsv,$btnSave,$btnTelegram,$grid,$btnAdd,$btnEdit,$btnMaintenance,$btnDelete,$btnStart,$btnStop,$txtEvents))
+$form.Controls.AddRange(@($txtCsv,$btnCsv,$btnSave,$btnTelegram,$grid,$btnAdd,$btnEdit,$btnDelete,$btnStart,$btnStop,$txtEvents))
 function Update-Layout {
     $width=$form.ClientSize.Width; $height=$form.ClientSize.Height
     $btnTelegram.Location=[System.Drawing.Point]::new(($width - 135),13)
@@ -206,7 +204,7 @@ function Update-Layout {
     $txtCsv.Location=[System.Drawing.Point]::new(15,15); $txtCsv.Size=[System.Drawing.Size]::new([Math]::Max(200,($width - 480)),24)
     $grid.Location=[System.Drawing.Point]::new(15,55); $grid.Size=[System.Drawing.Size]::new(($width - 30),[Math]::Max(150,($height - 280)))
     $y=$grid.Bottom+8; $x=15
-    foreach($button in @($btnAdd,$btnEdit,$btnMaintenance,$btnDelete,$btnStart,$btnStop)) { $button.Location=[System.Drawing.Point]::new($x,$y); $x+=$button.Width+10 }
+    foreach($button in @($btnAdd,$btnEdit,$btnDelete,$btnStart,$btnStop)) { $button.Location=[System.Drawing.Point]::new($x,$y); $x+=$button.Width+10 }
     $txtEvents.Location=[System.Drawing.Point]::new(15,($y + 40)); $txtEvents.Size=[System.Drawing.Size]::new(($width - 30),[Math]::Max(100,($height - $txtEvents.Top - 15)))
 }
 $form.Add_Shown({ Update-Layout })
