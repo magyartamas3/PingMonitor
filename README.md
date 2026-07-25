@@ -8,6 +8,8 @@ A `PingMonitorGUI.ps1` a kattintgatos, Windows-os feluletu valtozat. Ebben egyet
 
 A legegyszerubb inditas a `PingMonitorGUI.exe`: csak kattints ra duplan. Az EXE a teljes GUI scriptet tartalmazza, ezert nem kell PowerShell-parancsot vagy futtatasi engedelyt beallitani. Vegfelhasznaloknak eleg csak ezt az egy EXE fajlt atmasolni egy sajat mappaba. A `PingMonitorGUI.ps1` a GitHubon kulon is megmarad ellenorizhetoseghez es halado hasznalathoz.
 
+Az EXE DPI-tudatos Windows-alkalmazaskent van forditva, ezert nagyobb kijelzomerezet (peldaul 125% vagy 150%) mellett is eles feluletet kell mutatnia.
+
 A sajat `devices.csv` es `config.ps1` fajlodat szinten ebben a mappaban tartsd. Ezek helyi, bizalmas adatok, a `.gitignore` miatt nem kerulnek fel GitHubra es az EXE sem tartalmazza oket.
 
 Mar csak az EXE fajl atmasolasakor is az elso inditas automatikusan letrehozza a helyi `config.ps1` es `devices.csv` fajlokat. Az ures eszkozlistanal a `Hozzaadas` gombbal vedd fel az elso eszkozt; Telegram-beallitas nelkul a program csak helyi naplot ir.
