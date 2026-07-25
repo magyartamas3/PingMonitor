@@ -4,7 +4,10 @@ Add-Type -AssemblyName System.Drawing
 Add-Type -AssemblyName System.Drawing
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
+# PS2EXE-be csomagolva a PSScriptRoot ures lehet. Ilyenkor az EXE sajat
+# mappajat hasznaljuk, hogy a helyi config.ps1, devices.csv es logs ott legyen.
 $ScriptRoot = $PSScriptRoot
+if ([string]::IsNullOrWhiteSpace($ScriptRoot)) { $ScriptRoot = [System.AppDomain]::CurrentDomain.BaseDirectory }
 $ConfigFile = Join-Path $ScriptRoot 'config.ps1'
 $SettingsFile = Join-Path $ScriptRoot 'pingmonitor-settings.json'
 $LogDirectory = Join-Path $ScriptRoot 'logs'
