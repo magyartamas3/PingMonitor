@@ -4,6 +4,8 @@
 
 A `PingMonitorGUI.ps1` a kattintgatos, Windows-os feluletu valtozat. Ebben egyetlen ablakbol valaszthatsz CSV-t, kezelheted az eszkozoket, a karbantartasi idoszakokat es a Telegram celokat, valamint eloben latod az eszkozok allapotat es pingjet. Az eszkozlista az ablak meretevel egyutt novekszik vagy csokken; a vezerlogombok es az esemenynaplo mindig alatta maradnak.
 
+Ha a korabban hasznalt CSV helye mar nem letezik, a GUI es a konzolos valtozat automatikusan az alkalmazas mappajaban levo `devices.csv` fajlt tolti be. Igy a script sajat mappajabol inditva nem kell ujra kivalasztani az eszkozlistat.
+
 A korabbi `PingMonitorV3.ps1` konzolos valtozat megmarad tartaleknak.
 
 PowerShell-alapu halozatfigyelo. Az eszkozoket parhuzamosan meri, a kieseseket Telegramon jelzi, es egyetlen konzolablakban mutatja az aktualis allapotot.

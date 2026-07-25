@@ -273,6 +273,15 @@ function Show-Menu {
 
 $settings = Load-Settings
 $script:SelectedCsvPath = $settings.LastCsvPath
+if (-not (Test-SelectedCsv)) {
+    # Ha az elozo hely mar nem letezik, hasznaljuk a script mappajaban levo
+    # sajat devices.csv fajlt, ha van ilyen.
+    $defaultCsv = Join-Path $PSScriptRoot 'devices.csv'
+    if (Test-Path -LiteralPath $defaultCsv) {
+        $script:SelectedCsvPath = $defaultCsv
+        Save-Settings $script:SelectedCsvPath
+    }
+}
 Show-Menu
 if (-not (Test-SelectedCsv)) { Write-Host 'Nem valasztottal CSV-fajlt. A program leall.' -ForegroundColor Yellow; exit }
 $Devices = @(Import-Devices $script:SelectedCsvPath)

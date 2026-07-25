@@ -223,6 +223,15 @@ $form.Add_ClientSizeChanged({ Update-Layout })
 $form.Add_ResizeEnd({ Update-Layout })
 $timer=New-Object Windows.Forms.Timer;$timer.Interval=1000;$timer.Add_Tick({Monitor-Tick});$timer.Start()
 $form.Add_FormClosing({$timer.Stop();foreach($c in $script:Clients.Values){$c.Dispose()}})
-$saved=Load-Settings;if($saved -and (Test-Path $saved)){Load-Devices $saved}
+$saved=Load-Settings
+if($saved -and (Test-Path -LiteralPath $saved)) {
+    Load-Devices $saved
+}
+else {
+    # Elso inditaskor, illetve egy mar nem letezo korabbi utvonal eseten
+    # automatikusan az alkalmazas mappajaban levo sajat devices.csv-t hasznalja.
+    $defaultCsv = Join-Path $ScriptRoot 'devices.csv'
+    if(Test-Path -LiteralPath $defaultCsv){Load-Devices $defaultCsv}
+}
 $form.Add_Shown({if(@($TelegramTargets).Count -eq 0 -and [Windows.Forms.MessageBox]::Show('Szeretnel Telegram ertesiteseket beallitani?','PingMonitor',[Windows.Forms.MessageBoxButtons]::YesNo) -eq 'Yes'){Show-TelegramDialog}})
 [void]$form.ShowDialog()
