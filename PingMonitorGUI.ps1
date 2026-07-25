@@ -72,7 +72,7 @@ function New-Stats { @{ Total=0; Success=0; LatencyCount=0; LatencyTotal=0; MaxL
 function Reset-MonitorData {
     $script:States=@{}; $script:Stats=@{}; $script:Clients=@{}; $script:Pending=@{}
     foreach ($device in $script:Devices) {
-        $script:States[$device.IP] = @{ Online=$null; DownSince=$null; Latency=$null; Maintenance=$false }
+        $script:States[$device.IP] = @{ Online=$null; DownSince=$null; FailureSince=$null; Latency=$null; Maintenance=$false }
         $script:Stats[$device.IP] = New-Stats
         $script:Clients[$device.IP] = New-Object System.Net.NetworkInformation.Ping
     }
@@ -159,21 +159,32 @@ function Monitor-Tick {
     if(-not $script:Monitoring){return};$now=Get-Date;$down=[Collections.Generic.List[object]]::new();$up=[Collections.Generic.List[object]]::new()
     foreach($d in $script:Devices){
         $state=$script:States[$d.IP];$state.Maintenance=Test-Maintenance $d
-        if($state.Maintenance){$state.Online=$null;$state.DownSince=$null;continue}
+        if($state.Maintenance){$state.Online=$null;$state.DownSince=$null;$state.FailureSince=$null;continue}
         $task=$script:Pending[$d.IP];$ok=$false;$latency=$null
         if($null -eq $task) {
             try{$script:Pending[$d.IP]=$script:Clients[$d.IP].SendPingAsync($d.IP,$PingTimeoutMilliseconds)}catch{$script:Pending[$d.IP]=$null}
             continue
         }
         # A meg nem erkezett valasz meg nem kieses. A SendPingAsync a fenti
-        # 4000 ms letelte utan maga fejezi be TimedOut allapottal, ugyanugy,
-        # ahogy a Windows ping.exe alapertelmezett viselkedese.
+        # idotullepes letelte utan maga fejezi be TimedOut allapottal.
         if($task -and -not $task.IsCompleted){continue}
         if($task){try{$r=$task.Result;$ok=$r.Status -eq [Net.NetworkInformation.IPStatus]::Success;if($ok){$latency=[int]$r.RoundtripTime}}catch{}}
         $s=$script:Stats[$d.IP];$s.Total++;if($ok){$s.Success++;$s.LatencyCount++;$s.LatencyTotal+=$latency;if($latency -gt $s.MaxLatency){$s.MaxLatency=$latency}}
-        $prev=$state.Online;$state.Online=$ok;$state.Latency=$latency
-        if($null -ne $prev -and $prev -and -not $ok){$state.DownSince=$now;$down.Add($d);Add-Log "$($d.Name) KIESETT"}
-        elseif($prev -eq $false -and $ok){$seconds=($now-$state.DownSince).TotalSeconds;$state.DownSince=$null;$up.Add([pscustomobject]@{Name=$d.Name;IP=$d.IP;DownSeconds=$seconds});Add-Log "$($d.Name) HELYREALLT - $('{0:N1}' -f $seconds) mp"}
+        $prev=$state.Online;$state.Latency=$latency
+        if($ok){
+            $state.FailureSince=$null;$state.Online=$true
+            if($prev -eq $false){$seconds=($now-$state.DownSince).TotalSeconds;$state.DownSince=$null;$up.Add([pscustomobject]@{Name=$d.Name;IP=$d.IP;DownSeconds=$seconds});Add-Log "$($d.Name) HELYREALLT - $('{0:N1}' -f $seconds) mp"}
+        }
+        else {
+            # Egy gyorsan visszaadott ICMP hiba is lehet atmeneti. Csak akkor
+            # valtunk Offline-ra, ha a sikertelenseg folytonosan eleri a GUI-ban
+            # megadott idot (peldaul 4000 ms-t).
+            if($null -eq $state.FailureSince){$state.FailureSince=$now}
+            $failedForMilliseconds=($now-$state.FailureSince).TotalMilliseconds
+            if($failedForMilliseconds -ge $PingTimeoutMilliseconds){
+                if($prev -ne $false){$state.Online=$false;$state.DownSince=$state.FailureSince;if($prev -eq $true){$down.Add($d);Add-Log "$($d.Name) KIESETT"}}
+            }
+        }
         try{$script:Pending[$d.IP]=$script:Clients[$d.IP].SendPingAsync($d.IP,$PingTimeoutMilliseconds)}catch{$script:Pending[$d.IP]=$null}
     }
     Send-Events $down $up $now;if($now -ge $script:NextSummary){Send-DailySummary};Update-Grid
