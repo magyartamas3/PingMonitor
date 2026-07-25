@@ -10,7 +10,7 @@ PowerShell-alapu halozatfigyelo. Az eszkozoket parhuzamosan meri, a kieseseket T
 
 ## Fobb funkciok
 
-- 1 masodperces parhuzamos ping meres, 1000 ms idotullepessel
+- 1 masodperces feluleti frissites es parhuzamos ping meres. Egy eszkoz csak a Windows `ping.exe` alapertelmezett, 4000 ms-os idotullepese utan minosul kiesettnek.
 - Eszkoz hozzaadasa es torlese konzolos menubol
 - Az utoljara hasznalt CSV eszkozlista megjegyzese az aktualis gepen
 - Eszkozokent ki- es bekapcsolhato, idozitett karbantartasi idoszak

@@ -8,7 +8,9 @@ $ScriptRoot = $PSScriptRoot
 $ConfigFile = Join-Path $ScriptRoot 'config.ps1'
 $SettingsFile = Join-Path $ScriptRoot 'pingmonitor-settings.json'
 $LogDirectory = Join-Path $ScriptRoot 'logs'
-$PingTimeoutMilliseconds = 1000
+# A Windows ping.exe alapertelmezett varakozasi ideje 4 masodperc.
+# Csak ennek letelte utan tekintunk egy pinget valodi kiesesnek.
+$PingTimeoutMilliseconds = 4000
 $SummaryHour = 21
 $MonitorName = $env:COMPUTERNAME
 if (-not (Test-Path $LogDirectory)) { New-Item -ItemType Directory -Path $LogDirectory | Out-Null }
@@ -163,7 +165,11 @@ function Monitor-Tick {
             try{$script:Pending[$d.IP]=$script:Clients[$d.IP].SendPingAsync($d.IP,$PingTimeoutMilliseconds)}catch{$script:Pending[$d.IP]=$null}
             continue
         }
-        if($task){if($task.IsCompleted){try{$r=$task.Result;$ok=$r.Status -eq [Net.NetworkInformation.IPStatus]::Success;if($ok){$latency=[int]$r.RoundtripTime}}catch{}}else{$script:Clients[$d.IP].Dispose();$script:Clients[$d.IP]=New-Object Net.NetworkInformation.Ping}}
+        # A meg nem erkezett valasz meg nem kieses. A SendPingAsync a fenti
+        # 4000 ms letelte utan maga fejezi be TimedOut allapottal, ugyanugy,
+        # ahogy a Windows ping.exe alapertelmezett viselkedese.
+        if($task -and -not $task.IsCompleted){continue}
+        if($task){try{$r=$task.Result;$ok=$r.Status -eq [Net.NetworkInformation.IPStatus]::Success;if($ok){$latency=[int]$r.RoundtripTime}}catch{}}
         $s=$script:Stats[$d.IP];$s.Total++;if($ok){$s.Success++;$s.LatencyCount++;$s.LatencyTotal+=$latency;if($latency -gt $s.MaxLatency){$s.MaxLatency=$latency}}
         $prev=$state.Online;$state.Online=$ok;$state.Latency=$latency
         if($null -ne $prev -and $prev -and -not $ok){$state.DownSince=$now;$down.Add($d);Add-Log "$($d.Name) KIESETT"}

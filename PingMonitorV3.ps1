@@ -1,4 +1,4 @@
-# PingMonitor V4 - Windows PowerShell 5.1 / PowerShell 7
+﻿# PingMonitor V4 - Windows PowerShell 5.1 / PowerShell 7
 
 Add-Type -AssemblyName System.Windows.Forms
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
@@ -7,7 +7,9 @@ $ConfigFile = Join-Path $PSScriptRoot 'config.ps1'
 $ConfigExampleFile = Join-Path $PSScriptRoot 'config-example.ps1'
 $SettingsFile = Join-Path $PSScriptRoot 'pingmonitor-settings.json'
 $LogDirectory = Join-Path $PSScriptRoot 'logs'
-$PingTimeoutMilliseconds = 1000
+# A Windows ping.exe alapertelmezett varakozasi ideje 4 masodperc.
+# Csak ennek letelte utan tekintunk egy pinget valodi kiesesnek.
+$PingTimeoutMilliseconds = 4000
 $SummaryHour = 21
 $LogRetentionDays = 30
 
