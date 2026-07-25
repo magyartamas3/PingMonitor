@@ -4,6 +4,14 @@
 
 A `PingMonitorGUI.ps1` a kattintgatos, Windows-os feluletu valtozat. Ebben egyetlen ablakbol valaszthatsz CSV-t, kezelheted az eszkozoket, a karbantartasi idoszakokat es a Telegram celokat, valamint eloben latod az eszkozok allapotat es pingjet. Az eszkozlista az ablak meretevel egyutt novekszik vagy csokken; a vezerlogombok es az esemenynaplo mindig alatta maradnak.
 
+### Inditas EXE-vel
+
+A legegyszerubb inditas a `PingMonitorGUI.exe`: csak kattints ra duplan. Az EXE automatikusan elinditja a mellette levo `PingMonitorGUI.ps1` fajlt, ezert nem kell PowerShell-parancsot vagy futtatasi engedelyt beallitani. Az EXE es a `PingMonitorGUI.ps1` mindig ugyanabban a mappaban maradjon.
+
+A sajat `devices.csv` es `config.ps1` fajlodat szinten ebben a mappaban tartsd. Ezek helyi, bizalmas adatok, a `.gitignore` miatt nem kerulnek fel GitHubra es az EXE sem tartalmazza oket.
+
+Az EXE nincs kodalairva, ezert a Windows egyes gepeken figyelmeztetest jelenithet meg. Csak a sajat, ellenorzott GitHub-repositorydbol letoltott fajlt inditsd el. A `Build-Exe.ps1` ujra letrehozza az EXE-t a mellekelt forraskodbol, kulso modul telepitese nelkul.
+
 Ha a korabban hasznalt CSV helye mar nem letezik, a GUI es a konzolos valtozat automatikusan az alkalmazas mappajaban levo `devices.csv` fajlt tolti be. Igy a script sajat mappajabol inditva nem kell ujra kivalasztani az eszkozlistat.
 
 A korabbi `PingMonitorV3.ps1` konzolos valtozat megmarad tartaleknak.
