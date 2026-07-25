@@ -10,6 +10,8 @@ A legegyszerubb inditas a `PingMonitorGUI.exe`: csak kattints ra duplan. Az EXE 
 
 A sajat `devices.csv` es `config.ps1` fajlodat szinten ebben a mappaban tartsd. Ezek helyi, bizalmas adatok, a `.gitignore` miatt nem kerulnek fel GitHubra es az EXE sem tartalmazza oket.
 
+Ha csak az EXE-t es a `PingMonitorGUI.ps1` fajlt masolod at, az elso inditas automatikusan letrehozza a helyi `config.ps1` es `devices.csv` fajlokat. Az ures eszkozlistanal a `Hozzaadas` gombbal vedd fel az elso eszkozt; Telegram-beallitas nelkul a program csak helyi naplot ir.
+
 Az EXE nincs kodalairva, ezert a Windows egyes gepeken figyelmeztetest jelenithet meg. Csak a sajat, ellenorzott GitHub-repositorydbol letoltott fajlt inditsd el. A `Build-Exe.ps1` ujra letrehozza az EXE-t a mellekelt forraskodbol, kulso modul telepitese nelkul.
 
 Ha a korabban hasznalt CSV helye mar nem letezik, a GUI es a konzolos valtozat automatikusan az alkalmazas mappajaban levo `devices.csv` fajlt tolti be. Igy a script sajat mappajabol inditva nem kell ujra kivalasztani az eszkozlistat.

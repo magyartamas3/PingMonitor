@@ -16,6 +16,12 @@ $MonitorName = $env:COMPUTERNAME
 if (-not (Test-Path $LogDirectory)) { New-Item -ItemType Directory -Path $LogDirectory | Out-Null }
 Get-ChildItem $LogDirectory -File -ErrorAction SilentlyContinue | Where-Object LastWriteTime -lt (Get-Date).AddDays(-30) | Remove-Item -Force
 if (-not (Test-Path $ConfigFile)) { '$TelegramTargets = @()' | Set-Content $ConfigFile -Encoding UTF8 }
+$DefaultDevicesFile = Join-Path $ScriptRoot 'devices.csv'
+if (-not (Test-Path $DefaultDevicesFile)) {
+    # Az EXE + PS1 onmagaban is hasznalhato: az elso inditas letrehoz egy
+    # ures, helyi eszkozlistat. Az eszkozoket a GUI Hozzaadas gombjaval lehet felvenni.
+    'Name,IP,MaintenanceEnabled,MaintenanceStart,MaintenanceEnd' | Set-Content $DefaultDevicesFile -Encoding UTF8
+}
 . $ConfigFile
 if ($null -eq $TelegramTargets) { $TelegramTargets = @() }
 
@@ -88,10 +94,10 @@ function Load-Devices([string]$Path) {
             if (-not $_.Name -or -not $_.IP) { throw 'A CSV minden soraban kell Name es IP.' }
             [pscustomobject]@{ Name=[string]$_.Name; IP=[string]$_.IP; MaintenanceEnabled=([string]$_.MaintenanceEnabled -eq 'True'); MaintenanceStart=[string]$_.MaintenanceStart; MaintenanceEnd=[string]$_.MaintenanceEnd }
         })
-        if ($items.Count -eq 0) { throw 'A CSV ures.' }
         if (@($items | Group-Object IP | Where-Object Count -gt 1).Count) { throw 'Egy IP csak egyszer szerepelhet.' }
         $script:Devices.Clear(); foreach ($item in $items) { [void]$script:Devices.Add($item) }
-        $script:CsvPath=$Path; $txtCsv.Text=$Path; Save-Settings; Reset-MonitorData; Update-Grid; $btnStart.Enabled=$true; Add-Log "CSV betoltve: $Path"
+        $script:CsvPath=$Path; $txtCsv.Text=$Path; Save-Settings; Reset-MonitorData; Update-Grid; $btnStart.Enabled=($items.Count -gt 0); Add-Log "CSV betoltve: $Path"
+        if ($items.Count -eq 0) { Add-Log 'Az eszkozlista ures. Az elso eszkozt a Hozzaadas gombbal veheted fel.' }
     } catch { [System.Windows.Forms.MessageBox]::Show($_.Exception.Message,'CSV hiba') | Out-Null }
 }
 function Update-Grid {
@@ -241,7 +247,7 @@ if($saved -and (Test-Path -LiteralPath $saved)) {
 else {
     # Elso inditaskor, illetve egy mar nem letezo korabbi utvonal eseten
     # automatikusan az alkalmazas mappajaban levo sajat devices.csv-t hasznalja.
-    $defaultCsv = Join-Path $ScriptRoot 'devices.csv'
+    $defaultCsv = $DefaultDevicesFile
     if(Test-Path -LiteralPath $defaultCsv){Load-Devices $defaultCsv}
 }
 $form.Add_Shown({if(@($TelegramTargets).Count -eq 0 -and [Windows.Forms.MessageBox]::Show('Szeretnel Telegram ertesiteseket beallitani?','PingMonitor',[Windows.Forms.MessageBoxButtons]::YesNo) -eq 'Yes'){Show-TelegramDialog}})
