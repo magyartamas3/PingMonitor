@@ -66,12 +66,12 @@ A `3. Eszkozlista szerkesztese` menupont egy kulon szerkeszto menut nyit. Itt el
 
 A `8. Uj Telegram API token es Chat ID par hozzaadasa` menuponttal kesobb is barmikor felvehetsz egy vagy tobb uj Telegram celt. A parok a helyi `config.ps1` fajlba mentodnek.
 
-A karbantartasi beallitas eszkozonkent adhato meg. Pelda: az `Isombar` eszkozhz 22:00 kezdetet es 07:00 veget beallitva a script ejfelkor atnyulo idoszakot is helyesen kezeli.
+A karbantartasi beallitas eszkozonkent adhato meg. Pelda: egy eszkozhoz 22:00 kezdetet es 07:00 veget beallitva a script ejfelkor atnyulo idoszakot is helyesen kezeli.
 
 ## CSV formatum
 
 ```csv
 Name,IP,MaintenanceEnabled,MaintenanceStart,MaintenanceEnd
 Router,192.168.1.1,False,,
-Isombar,192.168.1.202,True,22:00,07:00
+ScheduledDevice,192.168.1.202,True,22:00,07:00
 ```
