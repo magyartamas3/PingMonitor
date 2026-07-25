@@ -185,6 +185,9 @@ $txtCsv=New-Object Windows.Forms.TextBox;$txtCsv.Location='15,15';$txtCsv.Size='
 $btnCsv=New-Object Windows.Forms.Button;$btnCsv.Text='CSV kiválasztása';$btnCsv.Size='140,28'
 $btnSave=New-Object Windows.Forms.Button;$btnSave.Text='Eszközlista mentése';$btnSave.Size='160,28'
 $btnTelegram=New-Object Windows.Forms.Button;$btnTelegram.Text='Telegram célok';$btnTelegram.Size='120,28'
+$lblTimeout=New-Object Windows.Forms.Label;$lblTimeout.Text='Kiesés jelzése (ms):';$lblTimeout.AutoSize=$true
+$numTimeout=New-Object Windows.Forms.NumericUpDown;$numTimeout.Minimum=1;$numTimeout.Maximum=600000;$numTimeout.Increment=100;$numTimeout.Value=$PingTimeoutMilliseconds;$numTimeout.Size=[System.Drawing.Size]::new(100,24)
+$tip=New-Object Windows.Forms.ToolTip;$tip.SetToolTip($numTimeout,'Ennyi ideig vár válaszra, mielőtt kiesésnek jelöli az eszközt. A Windows ping.exe alapértéke 4000 ms.')
 $grid=New-Object Windows.Forms.DataGridView;$grid.AllowUserToAddRows=$false;$grid.ReadOnly=$true;$grid.SelectionMode='FullRowSelect';$grid.AutoSizeColumnsMode='Fill';$grid.MultiSelect=$false
 foreach($header in @('Nev','IP','Allapot','Ping','Karbantartas')){[void]$grid.Columns.Add($header,$header)}
 $btnAdd=New-Object Windows.Forms.Button;$btnAdd.Text='Hozzáadás';$btnAdd.Size='90,30'
@@ -199,16 +202,18 @@ $btnTelegram.Add_Click({Show-TelegramDialog})
 $btnAdd.Add_Click({Show-DeviceDialog $null})
 $btnEdit.Add_Click({$d=Get-SelectedDevice;if($d){Show-DeviceDialog $d}})
 $btnDelete.Add_Click({$d=Get-SelectedDevice;if($d -and [Windows.Forms.MessageBox]::Show("Toroljem: $($d.Name)?",'Torles',[Windows.Forms.MessageBoxButtons]::YesNo) -eq 'Yes'){[void]$script:Devices.Remove($d);Reset-MonitorData;Update-Grid;Save-Devices}})
-$btnStart.Add_Click({$script:Monitoring=$true;$btnStart.Enabled=$false;$btnStop.Enabled=$true;Add-Log 'Figyeles elindult.';Send-Telegram "[INDITAS] PingMonitor elindult`nMonitor: $MonitorName"})
-$btnStop.Add_Click({$script:Monitoring=$false;$btnStart.Enabled=$true;$btnStop.Enabled=$false;Add-Log 'Figyeles leallitva.'})
-$form.Controls.AddRange(@($txtCsv,$btnCsv,$btnSave,$btnTelegram,$grid,$btnAdd,$btnEdit,$btnDelete,$btnStart,$btnStop,$txtEvents))
+$btnStart.Add_Click({$script:PingTimeoutMilliseconds=[int]$numTimeout.Value;$script:Monitoring=$true;$btnStart.Enabled=$false;$btnStop.Enabled=$true;$numTimeout.Enabled=$false;Add-Log "Figyeles elindult. Ping timeout: $PingTimeoutMilliseconds ms";Send-Telegram "[INDITAS] PingMonitor elindult`nMonitor: $MonitorName"})
+$btnStop.Add_Click({$script:Monitoring=$false;$btnStart.Enabled=$true;$btnStop.Enabled=$false;$numTimeout.Enabled=$true;Add-Log 'Figyeles leallitva.'})
+$form.Controls.AddRange(@($txtCsv,$btnCsv,$btnSave,$btnTelegram,$lblTimeout,$numTimeout,$grid,$btnAdd,$btnEdit,$btnDelete,$btnStart,$btnStop,$txtEvents))
 function Update-Layout {
     $width=$form.ClientSize.Width; $height=$form.ClientSize.Height
     $btnTelegram.Location=[System.Drawing.Point]::new(($width - 135),13)
     $btnSave.Location=[System.Drawing.Point]::new(($width - 300),13)
     $btnCsv.Location=[System.Drawing.Point]::new(($width - 450),13)
     $txtCsv.Location=[System.Drawing.Point]::new(15,15); $txtCsv.Size=[System.Drawing.Size]::new([Math]::Max(200,($width - 480)),24)
-    $grid.Location=[System.Drawing.Point]::new(15,55); $grid.Size=[System.Drawing.Size]::new(($width - 30),[Math]::Max(150,($height - 280)))
+    $lblTimeout.Location=[System.Drawing.Point]::new(15,48)
+    $numTimeout.Location=[System.Drawing.Point]::new(155,44)
+    $grid.Location=[System.Drawing.Point]::new(15,78); $grid.Size=[System.Drawing.Size]::new(($width - 30),[Math]::Max(150,($height - 303)))
     $y=$grid.Bottom+8; $x=15
     foreach($button in @($btnAdd,$btnEdit,$btnDelete,$btnStart,$btnStop)) { $button.Location=[System.Drawing.Point]::new($x,$y); $x+=$button.Width+10 }
     $txtEvents.Location=[System.Drawing.Point]::new(15,($y + 40)); $txtEvents.Size=[System.Drawing.Size]::new(($width - 30),[Math]::Max(100,($height - $txtEvents.Top - 15)))
