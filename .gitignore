@@ -8,6 +8,9 @@ halozat_hiba.log
 logs/
 pingmonitor-settings.json
 
+# Ideiglenes PS2EXE forditasi fajl
+PingMonitorGUI-PS2EXE.exe
+
 # Szerkesztoi beallitasok
 *.ps1.user
 .vscode/
